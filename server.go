@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type ServerOpts struct {
@@ -54,7 +57,34 @@ func (s *Server) handleConn(conn net.Conn) {
 			log.Printf("conn read error %s", err)
 			break
 		}
-		msg := buf[:n]
-		fmt.Printf(string(msg))
+		go s.handleCommand(conn, buf[:n])
 	}
+}
+
+func (s *Server) handleCommand(conn net.Conn, rawCmd []byte) {
+	rawStr := string(rawCmd)
+	parts := strings.Split(rawStr, " ")
+	if len(parts) == 0 {
+		log.Println("invalid command")
+		return
+	}
+	cmd := Command(parts[0])
+	if cmd == CMDSet {
+		if len(parts) != 4 {
+			log.Println("invalid SET commands")
+			return
+		}
+		ttl, err := strconv.Atoi(parts[3])
+		if err != nil {
+			log.Println("invalid SET")
+			return
+		}
+
+		msg := MSGSet{
+			key:   []byte(parts[1]),
+			value: []byte(parts[2]),
+			TTL:   time.Duration(ttl),
+		}
+	}
+
 }
