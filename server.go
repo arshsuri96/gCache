@@ -2,6 +2,7 @@ package main
 
 import (
 	"arshsuri96/ggcache/cache"
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -59,7 +60,7 @@ func (s *Server) handleConn(conn net.Conn) {
 }
 
 func (s *Server) handleCommand(conn net.Conn, rawCmd []byte) {
-	msg, err := s.parseMessage(rawCmd)
+	msg, err := parseMessage(rawCmd)
 	if err != nil {
 		fmt.Println("failed to parse commands ", err)
 		return
@@ -67,15 +68,28 @@ func (s *Server) handleCommand(conn net.Conn, rawCmd []byte) {
 
 	switch msg.Cmd {
 	case CMDSet:
-		if err := s.handleSetCmd(conn, msg); err != nil {
-			return
-		}
+		err = s.handleSetCmd(conn, msg)
+	case CMDGet:
+		err = s.handleGetCmd(conn, msg)
 	}
+}
 
+func (s *Server) handleGetCmd(conn net.Conn, msg *Message) error {
+	val, err := s.cache.Get(msg.Key)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Write(val)
+
+	return err
 }
 
 func (s *Server) handleSetCmd(conn net.Conn, msg *Message) error {
-	fmt.Println("handling the command: ", msg)
+	if err := s.cache.Set(msg.Key, msg.Value, msg.TTL); err != nil {
+		return err
+	}
+
+	go s.sendToFollowers(context.TODO(), msg)
 
 	return nil
 }

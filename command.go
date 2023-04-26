@@ -32,7 +32,7 @@ type Message struct {
 	TTL   time.Duration
 }
 
-func (s *Server) parseMessage(raw []byte) (*Message, error) {
+func parseMessage(raw []byte) (*Message, error) {
 	var (
 		rawStr = string(raw)
 		parts  = strings.Split(rawStr, " ")

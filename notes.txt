@@ -1,0 +1,5 @@
+Last Update 
+
+we have successfully made server, command, main and cache files.
+cmd commands comein, we handlethe command, parse the command based on cmdset or cmdget and then parse it with message struct
+
