@@ -1,5 +1,17 @@
 Last Update 
 
 we have successfully made server, command, main and cache files.
-cmd commands comein, we handlethe command, parse the command based on cmdset or cmdget and then parse it with message struct
+cmd commands come in, we establish the connection.
+-create a buffer and then insert in it from the connection 
 
+
+we handle the command, parse the command based on cmdset or cmdget and then parse it with message struct
+
+We are hardcoding the leader and each follower to the leader, but on usual days, theres a concensus algo which decides the leader 
+
+selecting the leader
+Service discovery
+P discovery 
+
+service discovery is more like a registry where instances register themselves with the IP. it uses POST at intervals and delete/refreshes
+themselves
